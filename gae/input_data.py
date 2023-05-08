@@ -46,7 +46,7 @@ def load_balsac():
     print(list(G.nodes())[:10])
 
     adj = nx.to_scipy_sparse_array(G)
-    features = sp.csr_matrix((len(data.keys()), 1), dtype=float)
+    features = sp.csr_matrix((len(data.keys()), 1), dtype=float).tolil()
     return adj, features
 
 
