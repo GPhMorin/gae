@@ -15,7 +15,7 @@ def parse_index_file(filename):
 
 
 def load_balsac():
-    with open('../../../data/', 'r') as infile:
+    with open('../../../data/parents.asc', 'r') as infile:
         lines = infile.readlines()[1:]
         data = {}
 
