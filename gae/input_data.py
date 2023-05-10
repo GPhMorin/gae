@@ -4,6 +4,8 @@ import pickle as pkl
 import networkx as nx
 import scipy.sparse as sp
 
+from tqdm import tqdm
+
 
 def parse_index_file(filename):
     index = []
@@ -12,7 +14,48 @@ def parse_index_file(filename):
     return index
 
 
+def load_balsac():
+    with open('../../../data/parents.asc', 'r') as infile:
+        lines = infile.readlines()[1:]
+        data = {}
+
+        for line in lines:
+            ind, father, mother, _ = line.strip().split('\t')
+            father = father if father != '0' else None
+            mother = mother if mother != '0' else None
+            data[ind] = (father, mother)
+
+    def get_parents(ind):
+        return data.get(ind, (None, None))
+
+    G = nx.Graph()
+    for ind in data.keys():
+        G.add_node(ind)
+
+    edges = []
+
+    for ind in tqdm(data.keys()):
+        father, mother = get_parents(ind)
+        if father:
+            edges.append((mother, father))
+        if mother:
+            edges.append((ind, mother))
+
+    G.add_edges_from(edges)
+
+    print(list(G.nodes())[:10])
+
+    adj = nx.to_scipy_sparse_array(G)
+    features = sp.csr_matrix((len(data.keys()), 1), dtype=float).tolil()
+    return adj, features
+
+
+
 def load_data(dataset):
+    if dataset == 'balsac':
+        adj, features = load_balsac()
+        return adj, features
+
     # load the data: x, tx, allx, graph
     names = ['x', 'tx', 'allx', 'graph']
     objects = []
